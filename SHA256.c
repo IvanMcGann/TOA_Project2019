@@ -38,5 +38,18 @@ void sha256(){
 
    // Current message block: (Section 6.2.2)
    uint32_t M[16];
+   
+   //Used for looping
+   int t;
+	
+   //W[t] = M[t]...for 0 <= t <= 15 (Section 6.2.2)	
+   for (t = 0; t < 16; t++)
+    W[t] = M[t];
+   	
+   //W[t] = Sigma1 for 16 <= t <= 63	
+   for (t = 16; t < 64; t++) 
+    W[t] = sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
+   //test quit
+
 }
 
