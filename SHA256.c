@@ -6,6 +6,16 @@
 
 void sha256();
 
+//SHA-256 functions for Sigma 1 & 2 (Sections 4.1.2 & 4.2.2)
+
+uint32_t sig0(uint32_t x);
+uint32_t sig1(uint32_t x);
+
+// rotr (rotate right and shr(shift right operators (Section 3.2) 
+
+uint32_t rotr(uint32_t n, uint32_t x);
+uint32_t shr(uint32_t n, uint32_t x);
+
 int main(int argc, char *argv[]){
 
   sha256();
@@ -49,7 +59,27 @@ void sha256(){
    //W[t] = Sigma1 for 16 <= t <= 63	
    for (t = 16; t < 64; t++) 
     W[t] = sig1(W[t-2]) + W[t-7] + sig0(W[t-15]) + W[t-16];
-   //test quit
+   //
+   //
 
 }
+   // x is a w-bit word and n is an integer with 0 <= n <= w (Section 3.2)
+   uint32_t rotr(uint32_t n, uint32_t x){
+    return (x >> n) | (x << (32 - n));
+   }
+   //x is a w-bit word and n is an integer with 0 <= n < w (Section 3.2)
+   uint32_t shr(uint32_t n, uint32_t x){
+    return (x >> n);
+   }
 
+   //^ = XOR , | = OR 
+   //(Sections 3.2 & 4.1.2)
+   uint32_t sig0(uint32_t x){
+    return (rotr(7, x) ^ rotr(18, x) ^ shr(3, x));
+   }
+   //(Sections 3.2 & 4.1.2)
+   uint32_t sig1(uint32_t x){
+    return (rotr(17, x) ^ rotr(19, x) ^ shr(10, x));	   
+   }
+
+   
