@@ -16,6 +16,18 @@ uint32_t sig1(uint32_t x);
 uint32_t rotr(uint32_t n, uint32_t x);
 uint32_t shr(uint32_t n, uint32_t x);
 
+//each function operates on 32-bit words, which are represented as x, y, and z.
+//The result of each function is a new 32-bit word (Section 4.1.2)
+
+//
+uint32_t SIG0(uint32_t x);
+uint32_t SIG1(uint32_t x);
+
+uint32_t Ch(uint32_t x, uint32_t y, uint32_t z);
+uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
+
+
+
 int main(int argc, char *argv[]){
 
   sha256();
@@ -108,7 +120,7 @@ void sha256(){
     return (x >> n);
    }
 
-   //^ = XOR , | = OR
+   //^ = XOR , | = OR, ! = not and 
    
 
    //(Sections 3.2 & 4.1.2)
@@ -120,4 +132,20 @@ void sha256(){
     return (rotr(17, x) ^ rotr(19, x) ^ shr(10, x));	   
    }
 
+   //Section (4.1.2)
+   uint32_t SIG0(uint32_t x){
+    return (rotr(2, x) ^ rotr(13, x) ^ rotr(22, x));
+   }
+   //Section (4.1.2)
+   uint32_t SIG1(uint32_t x){
+    return (rotr(6, x) ^ rotr(11, x) ^ rotr(25, x));
+   }
+   //Section (4.1.2) Ch is choosing   
+   uint32_t Ch(uint32_t x, uint32_t y, uint32_t z)
+    return ((x & y) ^ ((!x) & z)
+   }
+    //Section (4.1.2) Maj is majority
+   uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
+    return ((x & y) ^ (x & z) ^ (y & z));
+   }
    
