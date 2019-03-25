@@ -11,23 +11,27 @@ union msgblock{
 
 int main(int argc, char *argv[]) {
   
-  //f is name of the file
+  //message block instance defined above defined union
+  union msgblock M;
+  //64 bit integer used below
+  uint64_t nobytes;
+
+  //f is name of the file pointer
   FILE* f;
   
-  //c character is used to read file
-  char c;
-  
+   
   //file open command for the first arguement provided on the command line. Argv allows you do deal with cmd line arguments
   f = fopen(argv[1], "r"); 
   //stdarg.h helps cmd line arguments for later
  
-  //prints out the first, single character (c) read from pointer in from the file f. fread deals in bytes, One byte - One time
-  printf("%c\n", fread(&c, 1, 1, f);
-  
-  //closes f pointed at 		  
+  //not at end of the file f
+  while(!feof(f)){//fread deals in 64 bytes from f; reads up to not more than; M.e stores the 64 read bytes in a message block
+    nobytes = fread(M.e, 1, 64, f);
+    printf("%llu\n", nobytes); // prints the 64 bytes read in long long unsigned integer.
+  }
+  //closes f 		  
   fclose(f); 
-
+ 
   //return statement 	 
-
   return 0;
 }
