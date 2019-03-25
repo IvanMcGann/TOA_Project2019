@@ -16,6 +16,8 @@ int main(int argc, char *argv[]) {
   //64 bit integer used below
   uint64_t nobytes;
 
+  //
+  uint64_t nobits = 0;
   //f is name of the file pointer
   FILE* f;
   
@@ -27,8 +29,20 @@ int main(int argc, char *argv[]) {
   //not at end of the file f
   while(!feof(f)){//fread deals in 64 bytes from f; reads up to not more than; M.e stores the 64 read bytes in a message block
     nobytes = fread(M.e, 1, 64, f);
-    printf("%llu\n", nobytes); // prints the 64 bytes read in long long unsigned integer.
+    //64 - 8 check if read block is less than 55 bytes. If it is it enters this statement
+    if (nobytes < 56){
+      printf("I've found a block with less than 55 bytes!\n"); // prints statement to warn if it is
+      //0x80 is seven zeros followed by a one on the left. Put in at the end. 
+      M.e[nobytes] = 0x80;   
+      while (nobytes < 56){
+        nobytes = nobytes + 1;// add one to no bytes
+        M.e[nobytes] = 0x00; //set all bytes to zero, between end of message up to last 8 bytes that need to be appended
+      }
+
+
+    } 
   }
+    
   //closes f 		  
   fclose(f); 
  
