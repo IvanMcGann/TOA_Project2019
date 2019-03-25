@@ -13,11 +13,13 @@ int main(int argc, char *argv[]) {
   
   //message block instance defined above defined union
   union msgblock M;
-  //64 bit integer used below
-  uint64_t nobytes;
 
-  //
+  //tracks the amount of bits append to end of message block. 
   uint64_t nobits = 0;
+  
+  //current no of bytes read
+  uint64_t nobytes; //64 bit integer used below
+  
   //f is name of the file pointer
   FILE* f;
   
@@ -38,13 +40,21 @@ int main(int argc, char *argv[]) {
         nobytes = nobytes + 1;// add one to no bytes
         M.e[nobytes] = 0x00; //set all bytes to zero, between end of message up to last 8 bytes that need to be appended
       }
-
+      // message block is array of 8, 64 bit integers, last bit element as nobits
+      // works in modern c standards
+	M.s[7] = nobits;
 
     } 
   }
     
   //closes f 		  
   fclose(f); 
+
+  //this displays all elements of M as 64 bytes in hex
+  for (int i = 0; i < 64; i++)
+  printf("%x ", M.e[i]);
+  printf("\n");
+
  
   //return statement 	 
   return 0;
