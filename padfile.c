@@ -39,17 +39,28 @@
      // 64 - 8 check if read block is less than 55 bytes. If it is it enters this statement
      if (nobytes < 56){
        printf("I've found a block with less than 56 bytes!\n"); // prints statement to warn if it is
-       // 0x80 is seven zeros followed by a one on the left. Put in at the end. 
+       // 0x80 is seven zeros followed by a one. Put in at the end. 
        M.e[nobytes] = 0x80;   
-       while (nobytes < 56){
+       while (nobytes < 56){//while loop keeps going until it reaches 64
          nobytes = nobytes + 1;// add one to no bytes
+
          M.e[nobytes] = 0x00; // set all bytes to zero, between end of message up to last 8 bytes that need to be appended
        }
       // message block is array of 8, 64 bit integers, last bit element as nobits
       // works in modern c standards to read from same union
    	 M.s[7] = nobits;
-
+	 S = FINISH;//status is set to finish
      } 
+      else if(nobytes < 64)//extra message block for padding
+        s = PAD0 //pad0 stands for all zeros for padding
+  	M.e[nobytes] = 0x90;// one appended to message
+      while (nobytes < 64){
+	nobytes = nobytes + 1;//add in all zeroes
+	M.e[nobytes] = 0x00;//
+      }   
+	else if (feof(f)){
+	S = PAD1;
+	}   
    }
     
    // closes file f 		  
