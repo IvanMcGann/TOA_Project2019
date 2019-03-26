@@ -39,6 +39,8 @@
      // fread deals in 64 bytes from f; reads up to not more than; M.e stores the 64 read bytes in a message block
      nobytes = fread(M.e, 1, 64, f);
      // 64 - 8 check if read block is less than 55 bytes. If it is it enters this statement
+     printf("Read %2llu bytes \n", nobytes);//display byte sizes to user
+     nobits = nobits + (nobytes * 8);//calculate no of bits from bytes     
      if (nobytes < 56){
        printf("I've found a block with less than 56 bytes!\n"); // prints statement to warn if it is
        // 0x80 is seven zeros followed by a one. Put in at the end. 
@@ -67,13 +69,13 @@
    }
 
    if (S==PAD0 || S == PAD1){
-       for(i=0; i <56; i++)//while i is less than 56 
+       for(i = 0; i < 56; i++)//while i is less than 56 
 	  M.e[i] = 0x00; 
 	  M.s[7] = nobits; //fill in with zeroes
    }//if status is PAD0 add a block of padding 448 bits of zeroes and last 8 bytes is 64 bit big endian integer representing the no of bits in the original message
-   else if (S==PAD1){
+   if (S==PAD1)
       M.e[0] = 0x08; //first bit of message block is a one for PAD1 and zero for PAD0
-   }
+   
     
    // closes file f 		  
    fclose(f); 
