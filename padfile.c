@@ -2,12 +2,14 @@
 #include <stdint.h>
 
 // Unions are similar to structs but allow elements to be stored at the same memory location
- union msgblock{
+  union msgblock{
    uint8_t e[64]; //64 element array of 8 bit integers = 512 byte message block
    uint32_t t[16]; //16 element array of 32 bit integers = 512 byte message block
    uint64_t s[8]; //8 element array of 64 bit integers = 512 bit message block
- };
+  };
 
+  //similar to a short integer, used to flag the current status of the message
+  enum status{READ, PAD1, PAD2, FINISH};
 
   int main(int argc, char *argv[]) {
   
@@ -19,6 +21,9 @@
   
    // current no of bytes read
    uint64_t nobytes; //64 bit integer used below
+
+   //status at the start is reading 
+   enum Status S = READ;
   
    // f is name of the file pointer
    FILE* f;
@@ -27,12 +32,13 @@
    f = fopen(argv[1], "r"); 
    // stdarg.h helps cmd line arguments for later
  
-   // not at end of the file f
-   while(!feof(f)){ // fread deals in 64 bytes from f; reads up to not more than; M.e stores the 64 read bytes in a message block
+   // urrent status is still at reading the file
+   while(S == READ){
+     // fread deals in 64 bytes from f; reads up to not more than; M.e stores the 64 read bytes in a message block
      nobytes = fread(M.e, 1, 64, f);
-   // 64 - 8 check if read block is less than 55 bytes. If it is it enters this statement
+     // 64 - 8 check if read block is less than 55 bytes. If it is it enters this statement
      if (nobytes < 56){
-       printf("I've found a block with less than 55 bytes!\n"); // prints statement to warn if it is
+       printf("I've found a block with less than 56 bytes!\n"); // prints statement to warn if it is
        // 0x80 is seven zeros followed by a one on the left. Put in at the end. 
        M.e[nobytes] = 0x80;   
        while (nobytes < 56){
