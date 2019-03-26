@@ -9,7 +9,7 @@
   };
 
   //similar to a short integer, used to flag the current status of the message
-  enum status{READ, PAD1, PAD2, FINISH};
+  enum status {READ, PAD0, PAD1, FINISH};
 
   int main(int argc, char *argv[]) {
   
@@ -23,7 +23,7 @@
    uint64_t nobytes; //64 bit integer used below
 
    //status at the start is reading 
-   enum Status S = READ;
+   enum status S = READ;
   
    // f is name of the file pointer
    FILE* f;
@@ -32,7 +32,9 @@
    f = fopen(argv[1], "r"); 
    // stdarg.h helps cmd line arguments for later
  
-   // urrent status is still at reading the file
+   int i;
+
+   // current status is still at reading the file
    while(S == READ){
      // fread deals in 64 bytes from f; reads up to not more than; M.e stores the 64 read bytes in a message block
      nobytes = fread(M.e, 1, 64, f);
@@ -51,16 +53,26 @@
    	 M.s[7] = nobits;
 	 S = FINISH;//status is set to finish
      } 
-      else if(nobytes < 64)//extra message block for padding
-        s = PAD0 //pad0 stands for all zeros for padding
+      else if(nobytes < 64){//extra message block for padding
+        S = PAD0; //pad0 stands for all zeros for padding
   	M.e[nobytes] = 0x90;// one appended to message
-      while (nobytes < 64){
-	nobytes = nobytes + 1;//add in all zeroes
-	M.e[nobytes] = 0x00;//
-      }   
-	else if (feof(f)){
-	S = PAD1;
+       while (nobytes < 64){
+	nobytes = nobytes + 1;
+	M.e[nobytes] = 0x00;//add all zeroes
+       }   
+      }
+	else if (feof(f)){ //if file is finished being read and was a multiple of 512 bits
+	S = PAD1;//still padding required
 	}   
+   }
+
+   if (S==PAD0 || S == PAD1){
+       for(i=0; i <56; i++)//while i is less than 56 
+	  M.e[i] = 0x00; 
+	  M.s[7] = nobits; //fill in with zeroes
+   }//if status is PAD0 add a block of padding 448 bits of zeroes and last 8 bytes is 64 bit big endian integer representing the no of bits in the original message
+   else if (S==PAD1){
+      M.e[0] = 0x08; //first bit of message block is a one for PAD1 and zero for PAD0
    }
     
    // closes file f 		  
