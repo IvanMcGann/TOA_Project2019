@@ -58,7 +58,17 @@ int main(int argc, char *argv[]){
 
 
 void sha256(FILE *fmsg){
-   
+  
+   // current  message block
+   union msgblock M;
+
+   // tracks the amount of bits read from the file. 
+   uint64_t nobits = 0;
+  
+   //status of the current message block wrt padding 
+   enum status S = READ;
+  
+  
    //64 constant 32-bit words,  represent the first thirty-two bits of the fractional parts of the cube roots of the first sixty-four prime numbers.
    
    //The K Constants (Section 4.2.2)
@@ -104,19 +114,17 @@ void sha256(FILE *fmsg){
     };
 
     
-  // Current message block (Section 6.2.2)
-   uint32_t M[16];
    
    //Used for looping below
    int i, t;
    
    //SHA-256 hash computation uses functions and constants previously defined in( Sections 4.1.2 & 4.2.2)
    //(Section 6.2.2)
-   while(nextmsgblock){
+   while(nextmsgblock(f, M, S, nobits)){
    //Part 1. (Section 6.2.2)
    //W[t] = M[t]...for 0 <= t <= 15 (Section 6.2.2)	
    for (t = 0; t < 16; t++)
-    W[t] = M[t];
+    W[t] = M.t[t];
    	
    //W[t] = Sigma1 for 16 <= t <= 63	
    for (t = 16; t < 64; t++) 
@@ -203,19 +211,11 @@ void sha256(FILE *fmsg){
 // retrieves next message block
 int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits) {
   
-   // message block instance defined above defined union
-   union msgblock M;
-
-   // tracks the amount of bits append to end of message block. 
-   uint64_t nobits = 0;
-  
-   // current no of bytes read
+  // current no of bytes recieved from fread
    uint64_t nobytes; //64 bit integer used below
 
-   //status at the start is reading 
-   enum status S = READ;
-  
-  //for looping
+     
+  //used for looping
    int i;
 
    // current status is still at reading the file
