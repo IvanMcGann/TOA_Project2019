@@ -218,6 +218,23 @@ int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits) {
   //used for looping
    int i;
 
+  // If all the message blocks are finished, then S should be set to FINISH
+   if (*S == FINISH)
+      return 0;
+  //If not finished check if we need another block if padding
+  if (S==PAD0 || S == PAD1){
+    for(i = 0; i < 56; i++)// set first 56 to all zeroes 
+       M->e[i] = 0x00; // set the last 64 bits to the number of bits in the file 
+      M->s[7] = *nobits;
+      *S = FINISH; 
+  if (S==PAD1)
+      M.e[0] = 0x80; //first bit of message block is a one for PAD1 and zero for PAD0
+  
+   return 1;
+  }//if s is PAD1 then set the first bit of M to one.
+   
+  
+
    // current status is still at reading the file
    while(S == READ){
      // fread deals in 64 bytes from f; reads up to not more than; M.e stores the 64 read bytes in a message block
