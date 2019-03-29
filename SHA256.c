@@ -14,9 +14,6 @@ union msgblock{
 //similar to a short integer, used to flag the current status of the message
 enum status {READ, PAD0, PAD1, FINISH};
 
-
-void sha256();
-
 //SHA-256 functions for Sigma 1 & 2 (Sections 4.1.2 & 4.2.2)
 
 uint32_t sig0(uint32_t x);
@@ -38,10 +35,21 @@ uint32_t Ch(uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 
 
+void sha256FILE *fmsg;
 
+// retrieves next message block
+int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits);
+
+//start of program
 int main(int argc, char *argv[]){
-
-  sha256();
+   // f is name of the file pointer
+   FILE *fmsg;
+  
+   // file open command for the first arguement provided on the command line. Argv allows you do deal with cmd line arguments
+   fmsg = fopen(argv[1], "r"); 
+   // stdarg.h helps cmd line arguments for later
+ 
+  sha256fmsg();
 	      
   return 0;
 }
@@ -49,8 +57,8 @@ int main(int argc, char *argv[]){
 // Function sha256 declared above and defined here
 
 
-void sha256(){
-
+void sha256(FILE *fmsg){
+   
    //64 constant 32-bit words,  represent the first thirty-two bits of the fractional parts of the cube roots of the first sixty-four prime numbers.
    
    //The K Constants (Section 4.2.2)
@@ -104,7 +112,7 @@ void sha256(){
    
    //SHA-256 hash computation uses functions and constants previously defined in( Sections 4.1.2 & 4.2.2)
    //(Section 6.2.2)
-   for(i = 0; i < 1; i++){
+   while(nextmsgblock){
    //Part 1. (Section 6.2.2)
    //W[t] = M[t]...for 0 <= t <= 15 (Section 6.2.2)	
    for (t = 0; t < 16; t++)
@@ -192,8 +200,8 @@ void sha256(){
 /////////////////////////////////////////
 
 
-
-int main(int argc, char *argv[]) {
+// retrieves next message block
+int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits) {
   
    // message block instance defined above defined union
    union msgblock M;
@@ -207,19 +215,13 @@ int main(int argc, char *argv[]) {
    //status at the start is reading 
    enum status S = READ;
   
-   // f is name of the file pointer
-   FILE* f;
-  
-   // file open command for the first arguement provided on the command line. Argv allows you do deal with cmd line arguments
-   f = fopen(argv[1], "r"); 
-   // stdarg.h helps cmd line arguments for later
- 
+  //for looping
    int i;
 
    // current status is still at reading the file
    while(S == READ){
      // fread deals in 64 bytes from f; reads up to not more than; M.e stores the 64 read bytes in a message block
-     nobytes = fread(M.e, 1, 64, f);
+     nobytes = fread(M.e, 1, 64, fmsg);
      // 64 - 8 check if read block is less than 55 bytes. If it is it enters this statement
      printf("Read %2llu bytes \n", nobytes);//display byte sizes to user
      nobits = nobits + (nobytes * 8);//calculate no of bits from bytes     
@@ -260,7 +262,7 @@ int main(int argc, char *argv[]) {
    
     
    // closes file f 		  
-   fclose(f); 
+   fclose(fmsg); 
 
    // this displays all elements of M as 64 bytes in hex
    for (int i = 0; i < 64; i++)
