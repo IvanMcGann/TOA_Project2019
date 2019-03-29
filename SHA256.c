@@ -35,7 +35,7 @@ uint32_t Ch(uint32_t x, uint32_t y, uint32_t z);
 uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 
 
-void sha256FILE *fmsg;
+void SHA256(FILE *fmsg);
 
 // retrieves next message block
 int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits);
@@ -43,13 +43,12 @@ int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits);
 //start of program
 int main(int argc, char *argv[]){
    // f is name of the file pointer
-   FILE *fmsg;
-  
+   FILE *fmsg;  
    // file open command for the first arguement provided on the command line. Argv allows you do deal with cmd line arguments
    fmsg = fopen(argv[1], "r"); 
    
    // stdarg.h helps cmd line arguments for later
-   sha256(fmsg);
+   SHA256(fmsg);
 	       
    // closes file f 		  
    fclose(fmsg); 
@@ -61,7 +60,7 @@ int main(int argc, char *argv[]){
 // Function sha256 declared above and defined here
 
 
-void sha256(FILE *fmsg){
+void SHA256(FILE *fmsg){
   
    // current  message block
    union msgblock M;
@@ -124,7 +123,7 @@ void sha256(FILE *fmsg){
    
    //SHA-256 hash computation uses functions and constants previously defined in( Sections 4.1.2 & 4.2.2)
    //(Section 6.2.2)
-   while(nextmsgblock(f, M, S, nobits)){
+   while(nextmsgblock(fmsg, &M, &S, &nobits)){
    //Part 1. (Section 6.2.2)
    //W[t] = M[t]...for 0 <= t <= 15 (Section 6.2.2)	
    for (t = 0; t < 16; t++)
@@ -201,8 +200,8 @@ void sha256(FILE *fmsg){
     return (rotr(6, x) ^ rotr(11, x) ^ rotr(25, x));
    }
    //Section (4.1.2) Ch is choosing   
-   uint32_t Ch(uint32_t x, uint32_t y, uint32_t z)
-    return ((x & y) ^ ((!x) & z)
+   uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
+    return ((x & y) ^ ((!x) & z));
    }
     //Section (4.1.2) Maj is majority
    uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
@@ -210,7 +209,7 @@ void sha256(FILE *fmsg){
    }
    
 // retrieves next message block, padding below
-int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits) {
+int nextmsgblock(FILE *fmsg, union msgblock *M, enum status s, uint64_t nobits) {
   
   // current no of bytes recieved from fread
    uint64_t nobytes; //64 bit integer used below
@@ -251,15 +250,15 @@ int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits) {
       // message block is array of 8, 64 bit integers, last bit element as nobits
       // works in modern c standards to read from same union
       // Append file size in bits
-   	 M.s[7] = nobits;
+	 M->s[7] = nobits;
 	 *S = FINISH;//status is set to finish
      } //if not finished check can some padding be put in message block
       else if(nobytes < 64){
-      	S = PAD0; //Tell s we need another message block with padding but no one bit. 
-	M.e[nobytes] = 0x80;// one bit appended to current message block
+	*S = PAD0; //Tell s we need another message block with padding but no one bit. 
+	M->e[nobytes] = 0x80;// one bit appended to current message block
        while (nobytes < 64){//pad rest of block with zero bits
 	nobytes = nobytes + 1;
-	M.e[nobytes] = 0x00;//add all zeroes
+	M->e[nobytes] = 0x00;//add all zeroes
        }//otherwise check if the program is at the end of the file   
       }
       else if (feof(fmsg)){ //if file is finished being read and was a multiple of 512 bits
