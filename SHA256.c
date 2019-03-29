@@ -100,11 +100,11 @@ void sha256(){
    uint32_t M[16];
    
    //Used for looping below
-   int t;
+   int i, t;
    
    //SHA-256 hash computation uses functions and constants previously defined in( Sections 4.1.2 & 4.2.2)
    //(Section 6.2.2)
-   
+   for(i = 0; i < 1; i++){
    //Part 1. (Section 6.2.2)
    //W[t] = M[t]...for 0 <= t <= 15 (Section 6.2.2)	
    for (t = 0; t < 16; t++)
@@ -146,8 +146,11 @@ void sha256(){
    H[7] = h + H[7];
 }
     //^ = XOR , | = OR
-   
+ printf("%x %x %x %x %x %x %x %x :", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);   
 
+ printf("\n");
+
+}
    //x is a w-bit word and n is an integer with 0 <= n <= w (Section 3.2)
    uint32_t rotr(uint32_t n, uint32_t x){
     return (x >> n) | (x << (32 - n));
