@@ -47,10 +47,14 @@ int main(int argc, char *argv[]){
   
    // file open command for the first arguement provided on the command line. Argv allows you do deal with cmd line arguments
    fmsg = fopen(argv[1], "r"); 
+   
    // stdarg.h helps cmd line arguments for later
+   sha256(fmsg);
+	       
+   // closes file f 		  
+   fclose(fmsg); 
  
-  sha256fmsg();
-	      
+
   return 0;
 }
 
@@ -205,10 +209,7 @@ void sha256(FILE *fmsg){
     return ((x & y) ^ (x & z) ^ (y & z));
    }
    
-/////////////////////////////////////////
-
-
-// retrieves next message block
+// retrieves next message block, padding below
 int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits) {
   
   // current no of bytes recieved from fread
@@ -229,64 +230,43 @@ int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits) {
       *S = FINISH; 
   if (S==PAD1)
       M.e[0] = 0x80; //first bit of message block is a one for PAD1 and zero for PAD0
-  
+   //keep loop in sha256() running an extra iteration  
    return 1;
   }//if s is PAD1 then set the first bit of M to one.
    
-  
+  //If program reaches here its still reading the file, (*S == READ)
 
-   // current status is still at reading the file
-   while(S == READ){
-     // fread deals in 64 bytes from f; reads up to not more than; M.e stores the 64 read bytes in a message block
-     nobytes = fread(M.e, 1, 64, fmsg);
+   nobytes = fread(M->e, 1, 64, fmsg);
      // 64 - 8 check if read block is less than 55 bytes. If it is it enters this statement
-     printf("Read %2llu bytes \n", nobytes);//display byte sizes to user
-     nobits = nobits + (nobytes * 8);//calculate no of bits from bytes     
-     if (nobytes < 56){
-       printf("I've found a block with less than 56 bytes!\n"); // prints statement to warn if it is
-       // 0x80 is seven zeros followed by a one. Put in at the end. 
-       M.e[nobytes] = 0x80;   
-       while (nobytes < 56){//while loop keeps going until it reaches 64
-         nobytes = nobytes + 1;// add one to no bytes
-
-         M.e[nobytes] = 0x00; // set all bytes to zero, between end of message up to last 8 bytes that need to be appended
+     *nobits = *nobits + (nobytes * 8);//calculate no of bytes read     
+    // Add zero bits, as per the standard 
+       if (nobytes < 56){
+       // If less than 56 bytes are read, more padding added in message block. 
+       M->e[nobytes] = 0x80;   
+     // add zero bits until the last 64 bits
+       while (nobytes < 56){
+         nobytes = nobytes + 1;
+	 M->e[nobytes] = 0x00; // set all bytes to zero, between end of message up to last 8 bytes that need to be appended
        }
       // message block is array of 8, 64 bit integers, last bit element as nobits
       // works in modern c standards to read from same union
+      // Append file size in bits
    	 M.s[7] = nobits;
-	 S = FINISH;//status is set to finish
-     } 
-      else if(nobytes < 64){//extra message block for padding
-        S = PAD0; //pad0 stands for all zeros for padding
-  	M.e[nobytes] = 0x90;// one appended to message
-       while (nobytes < 64){
+	 *S = FINISH;//status is set to finish
+     } //if not finished check can some padding be put in message block
+      else if(nobytes < 64){
+      	S = PAD0; //Tell s we need another message block with padding but no one bit. 
+	M.e[nobytes] = 0x80;// one bit appended to current message block
+       while (nobytes < 64){//pad rest of block with zero bits
 	nobytes = nobytes + 1;
 	M.e[nobytes] = 0x00;//add all zeroes
-       }   
+       }//otherwise check if the program is at the end of the file   
       }
-	else if (feof(f)){ //if file is finished being read and was a multiple of 512 bits
-	S = PAD1;//still padding required
-	}   
-   }
-
-   if (S==PAD0 || S == PAD1){
-       for(i = 0; i < 56; i++)//while i is less than 56 
-	  M.e[i] = 0x00; 
-	  M.s[7] = nobits; //fill in with zeroes
-   }//if status is PAD0 add a block of padding 448 bits of zeroes and last 8 bytes is 64 bit big endian integer representing the no of bits in the original message
-   if (S==PAD1)
-      M.e[0] = 0x08; //first bit of message block is a one for PAD1 and zero for PAD0
-   
+      else if (feof(fmsg)){ //if file is finished being read and was a multiple of 512 bits
+       //tell S we need another message block with all the padding
+       *S = PAD1;
+      }   
     
-   // closes file f 		  
-   fclose(fmsg); 
-
-   // this displays all elements of M as 64 bytes in hex
-   for (int i = 0; i < 64; i++)
-   printf("%x ", M.e[i]);
-   printf("\n");
-
- 
-   // return statement 	 
-   return 0;
+   //if program reaches here return 1 so this function is called again 	 
+   return 1;
 }
