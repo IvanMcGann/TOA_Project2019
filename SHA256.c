@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
-
+#include <stdlib.h>
 
 //message block represtentation
 union msgblock{
@@ -46,9 +46,22 @@ int main(int argc, char *argv[]){
    // f is name of the file pointer
    FILE *fmsg;  
 
+  // if there is no imput file the program won't try to read the file
+  if (argc==1){
+    printf("Error, no input file \n");
+    exit(1);
+  }
+  
+
+
    // file open command for the first arguement provided on the command line. Argv allows you do deal with cmd line arguments
    fmsg = fopen(argv[1], "r");
-
+   
+   // if file is empty it will produce empty 
+   if (fmsg == NULL){
+     printf("Error opening file %s \n", argv[1]);
+     exit(2);
+   } 
  
    
    // stdarg.h helps cmd line arguments for later
