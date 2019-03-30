@@ -5,6 +5,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+
+//adapted from
+//https://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
+
+#define SWAP_UINT32(x) (((x) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | ((x) << 24))
+
+
 //message block represtentation
 union msgblock{
 	uint8_t e[64]; //64 element array of 8 bit integers = 512 byte message block
@@ -144,7 +151,7 @@ void SHA256(FILE *fmsg){
    //Part 1. (Section 6.2.2)
    //W[t] = M[t]...for 0 <= t <= 15 (Section 6.2.2)	
    for (t = 0; t < 16; t++)
-    W[t] = M.t[t];
+    W[t] = SWAP_UINT32(M.t[t]);
    	
    //W[t] = Sigma1 for 16 <= t <= 63	
    for (t = 16; t < 64; t++) 
@@ -218,7 +225,7 @@ void SHA256(FILE *fmsg){
    }
    //Section (4.1.2) Ch is choosing   
    uint32_t Ch(uint32_t x, uint32_t y, uint32_t z){
-    return ((x & y) ^ ((!x) & z));
+    return ((x & y) ^ ((~x) & z));
    }
     //Section (4.1.2) Maj is majority
    uint32_t Maj(uint32_t x, uint32_t y, uint32_t z){
