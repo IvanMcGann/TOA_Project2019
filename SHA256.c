@@ -57,7 +57,7 @@ int main(int argc, char *argv[]){
    // file open command for the first arguement provided on the command line. Argv allows you do deal with cmd line arguments
    fmsg = fopen(argv[1], "r");
    
-   // if file is empty it will produce empty 
+   // if file corrupted or file can't be accessed 
    if (fmsg == NULL){
      printf("Error opening file %s \n", argv[1]);
      exit(2);
