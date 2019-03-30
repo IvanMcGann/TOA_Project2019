@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+
 //message block represtentation
 union msgblock{
 	uint8_t e[64]; //64 element array of 8 bit integers = 512 byte message block
@@ -38,14 +39,17 @@ uint32_t Maj(uint32_t x, uint32_t y, uint32_t z);
 void SHA256(FILE *fmsg);
 
 // retrieves next message block
-int nextmsgblock(FILE *fmsg,union msgblock *M, enum status s, uint64_t nobits);
+int nextmsgblock(FILE *fmsg,union msgblock *M, enum status *S, uint64_t *nobits);
 
 //start of program
 int main(int argc, char *argv[]){
    // f is name of the file pointer
    FILE *fmsg;  
+
    // file open command for the first arguement provided on the command line. Argv allows you do deal with cmd line arguments
-   fmsg = fopen(argv[1], "r"); 
+   fmsg = fopen(argv[1], "r");
+
+ 
    
    // stdarg.h helps cmd line arguments for later
    SHA256(fmsg);
@@ -209,7 +213,7 @@ void SHA256(FILE *fmsg){
    }
    
 // retrieves next message block, padding below
-int nextmsgblock(FILE *fmsg, union msgblock *M, enum status s, uint64_t nobits) {
+int nextmsgblock(FILE *fmsg, union msgblock *M, enum status *S, uint64_t *nobits) {
   
   // current no of bytes recieved from fread
    uint64_t nobytes; //64 bit integer used below
@@ -222,13 +226,13 @@ int nextmsgblock(FILE *fmsg, union msgblock *M, enum status s, uint64_t nobits) 
    if (*S == FINISH)
       return 0;
   //If not finished check if we need another block if padding
-  if (S==PAD0 || S == PAD1){
+  if (*S == PAD0 || *S == PAD1){
     for(i = 0; i < 56; i++)// set first 56 to all zeroes 
        M->e[i] = 0x00; // set the last 64 bits to the number of bits in the file 
       M->s[7] = *nobits;
       *S = FINISH; 
-  if (S==PAD1)
-      M.e[0] = 0x80; //first bit of message block is a one for PAD1 and zero for PAD0
+  if (*S==PAD1)
+      M->e[0] = 0x80; //first bit of message block is a one for PAD1 and zero for PAD0
    //keep loop in sha256() running an extra iteration  
    return 1;
   }//if s is PAD1 then set the first bit of M to one.
@@ -250,7 +254,7 @@ int nextmsgblock(FILE *fmsg, union msgblock *M, enum status s, uint64_t nobits) 
       // message block is array of 8, 64 bit integers, last bit element as nobits
       // works in modern c standards to read from same union
       // Append file size in bits
-	 M->s[7] = nobits;
+	 M->s[7] = *nobits;
 	 *S = FINISH;//status is set to finish
      } //if not finished check can some padding be put in message block
       else if(nobytes < 64){
