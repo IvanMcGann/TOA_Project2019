@@ -19,7 +19,11 @@ er Manual:
 11) Test this file using the command "./SHA empty.txt"
 12) The output will be -- e3b0c442 98fc1c14 9afbf4c8 996fb924 27ae41e4 649b934c a495991b 7852b855 
 13) Which is the correct output for an empty file.
-14) 
+14) Before we test the SHA256.c file we will generate the expected outcome using the command "openssl sha256 SHA256.c"
+    This produces the output of - SHA256(SHA256.c)= 4f3f24a3f498ca1ccfb4155ffcbcb4af3c57c5b669ed4920a371ac41a66d87f2
+15) Next I will test SHA256.c using the executable SHA file, the command will be "./SHA SHA256.c"
+16) The outcome of this is 4f3f24a3 f498ca1c cfb4155f fcbcb4af 3c57c5b6 69ed4920 a371ac41 a66d87f2. 
+ 
 
 References:
 
@@ -54,8 +58,8 @@ VI Commands:
 https://www.cs.colostate.edu/helpdocs/vi.html
 https://kb.iu.edu/d/afdc
 https://www.unix.com/unix-for-dummies-questions-and-answers/79915-vi-paste-out-alignment.html
-
-
+Openssl:
+https://web.microsoftstream.com/video/f823809a-d8df-4e12-b243-e1f8ed76b93f
 
 
 Video Links - 
@@ -75,5 +79,4 @@ Padding for C part 2:
 https://web.microsoftstream.com/video/200e71ec-1dc1-47a4-9de8-6f58781e3f38
 Finishing the SHA256 Algorithms:
 https://web.microsoftstream.com/video/f823809a-d8df-4e12-b243-e1f8ed76b93f
-
 
