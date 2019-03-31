@@ -8,9 +8,15 @@
 
 // Adapted from
 // https://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
+// Macros that swap 32/64 bit integers from little endian to big endian 
 
 #define SWAP_UINT32(x) (((x) >> 24) | (((x) & 0x00FF0000) >> 8) | (((x) & 0x0000FF00) << 8) | ((x) << 24))
 
+#define SWAP_UINT64(x) \
+	( (((x) >> 56) & 0x00000000000000FF) | (((x) >> 40) & 0x000000000000FF00) | \
+	  (((x) >> 24) & 0x0000000000FF0000) | (((x) >>  8) & 0x00000000FF000000) | \
+	  (((x) <<  8) & 0x000000FF00000000) | (((x) << 24) & 0x0000FF0000000000) | \
+	  (((x) << 40) & 0x00FF000000000000) | (((x) << 56) & 0xFF00000000000000) )
 
 // Message block represtentation
   union msgblock{
@@ -146,7 +152,7 @@ void SHA256(FILE *fmsg){
   while(nextmsgblock(fmsg, &M, &S, &nobits)){
 // Part 1. (Section 6.2.2)
   for (t = 0; t < 16; t++)
-    W[t] = SWAP_UINT32(M.t[t]);
+    W[t] = SWAP_UINT32(M.t[t]);// SWAP_UINT32 converts the integers to big endian
    	
 //W[t] = Sigma1 for 16 <= t <= 63	
    for (t = 16; t < 64; t++) 
@@ -201,7 +207,7 @@ void SHA256(FILE *fmsg){
     return (x >> n);
   }
 
-//^ = XOR , | = OR, ! or ~ = not and & is bitwise AND 
+//^ = XOR , | = OR, ! or ~ = not, & is bitwise AND 
    
 //(Sections 3.2 & 4.1.2)
   uint32_t sig0(uint32_t x){
@@ -247,7 +253,7 @@ void SHA256(FILE *fmsg){
   if (*S == PAD0 || *S == PAD1){
     for(i = 0; i < 56; i++)// Set first 56 to all zeroes 
        M->e[i] = 0x00; // Set the last 64 bits to the number of bits in the file 
-      M->s[7] = *nobits;
+      M->s[7] = SWAP_UINT64(*nobits); //SWAP_UINT64 converts the integers to big endian
       *S = FINISH; 
   if (*S==PAD1)
       M->e[0] = 0x80; // First bit of message block is a one for PAD1 and zero for PAD0
@@ -272,7 +278,7 @@ void SHA256(FILE *fmsg){
 // Message block is array of 8, 64 bit integers, last bit element as nobits
 // In modern c standards read from same union has the same addrss for each element 
 // Append file size in bits
-      M->s[7] = *nobits;
+      M->s[7] = SWAP_UINT64(*nobits);//SWAP_UINT64 converts the integers to big endian
       *S = FINISH; // Status is set to finish
    } // If not finished check can some padding be put in message block
    else if(nobytes < 64){
