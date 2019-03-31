@@ -5,7 +5,21 @@ Name: Ivan McGann
 Student Number: G00340138
 
 User manual:
-
+er Manual:
+1)  Clone the repository in the command line using the command "git clone https://github.com/IvanMcGann/TOA_Project2019"
+2)  From the home menu enter the folder of the project by entering the command "cd TOA_Project2019"
+3)  Once in the folder compile the SHA256.c file to create an executable (here named SHA) to run the program. Do this by using the command "gcc -o SHA SHA256.c"
+4)  This creates an executable you can use to run the program, to run this you need to enter a command "./SHA " followed by the file you need to run.
+5)  I will first test the SHA256 algorithm on an empty String, with the command "./SHA ""   "
+6)  This will tell the user there was an error reading the content.
+7)  Next I will create a file, I will keep it quick and just call it empty.txt, the command to do this is "vi empty.txt"
+8)  This will open vi but you can exit this by pressing esc on your keyboard and pressing semicolon, then q and press enter to leave the file. Command for this is "esc -> :q -> press enter".
+9)  This created an empty file, you can check the file sizes using the command "ls -l" 
+10)  Now I will test the empty file using the SHA executable created in step 2.
+11) Test this file using the command "./SHA empty.txt"
+12) The output will be -- e3b0c442 98fc1c14 9afbf4c8 996fb924 27ae41e4 649b934c a495991b 7852b855 
+13) Which is the correct output for an empty file.
+14) 
 
 References:
 
@@ -62,4 +76,4 @@ https://web.microsoftstream.com/video/200e71ec-1dc1-47a4-9de8-6f58781e3f38
 Finishing the SHA256 Algorithms:
 https://web.microsoftstream.com/video/f823809a-d8df-4e12-b243-e1f8ed76b93f
 
-Project for the Theory of Algorithms module
+

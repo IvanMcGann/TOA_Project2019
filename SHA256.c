@@ -71,7 +71,7 @@ void SHA256(FILE *fmsg);
    
 // If file corrupted or file can't be accessed 
   if (fmsg == NULL){
-    printf("Error opening file %s \n", argv[1]);
+    printf("Error reading content %s \n", argv[1]);
     exit(2);
   } 
  
@@ -192,7 +192,7 @@ void SHA256(FILE *fmsg){
 }
 
 
-  printf("%x %x %x %x %x %x %x %x :", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);   
+  printf("%x %x %x %x %x %x %x %x ", H[0], H[1], H[2], H[3], H[4], H[5], H[6], H[7]);   
 
   printf("\n");
 
