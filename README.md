@@ -4,7 +4,7 @@ Module: Theory of Algorithms - Project 2019
 Name: Ivan McGann
 Student Number: G00340138
 
-User manual:
+## User manual
 
 1)  Clone the repository in the command line using the command "git clone https://github.com/IvanMcGann/TOA_Project2019"
 2)  From the home menu enter the folder of the project by entering the command "cd TOA_Project2019"
@@ -23,9 +23,10 @@ User manual:
     This produces the output of - SHA256(SHA256.c)= 4f3f24a3f498ca1ccfb4155ffcbcb4af3c57c5b669ed4920a371ac41a66d87f2
 15) Next I will test SHA256.c using the executable SHA file, the command will be "./SHA SHA256.c"
 16) The outcome of this is 4f3f24a3 f498ca1c cfb4155f fcbcb4af 3c57c5b6 69ed4920 a371ac41 a66d87f2. 
- 
 
-References:
+
+
+## References
 
 Secure Hash Algorithm Doc:
 https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
@@ -63,7 +64,9 @@ Openssl:
 https://web.microsoftstream.com/video/f823809a-d8df-4e12-b243-e1f8ed76b93f
 
 
-Video Links - 
+## Video Links
+
+
 Hash standard intro:
 https://web.microsoftstream.com/video/6c22658e-7e5a-421a-b7f9-f0206741ca40
 
